@@ -84,14 +84,28 @@ def export():
 def importcsv():
     mydata.clear()
     fln = filedialog.askopenfilename(initialdir=os.getcwd(), title="Open CSV", filetypes=(("CSV File", "*.csv"), ("All Files", "*.*")))
-    with open(fln, mode='w') as myfile:
+    with open(fln) as myfile:
         csvread = csv.reader(myfile, delimiter=',')
         for i in csvread:
             mydata.append(i)
     update(mydata)
             
 def savedb():
-    return True
+    if messagebox.askyesno("Confirmation", "Are you sure you want to save file to Databse?"):
+        for i in mydata:
+            uid = i[0]
+            fname = i[1]
+            lname = i[2]
+            age = i[3]
+            query = "INSERT INTO infodata(id, first_name, last_name, age, date) VALUES(NULL, %s, %s, %s, NOW())"
+            cursor.execute(query, (fname, lname, age))
+        mydb.commit()
+        clear()
+        messagebox.showinfo("Data saved successfully!", "Data has been saved to Database")
+    else:
+        return False
+
+
 
 mydb = mysql.connector.connect(host="localhost", user="root", passwd="Albania@!007", database="crmdata", auth_plugin="mysql_native_password")
 cursor = mydb.cursor()
